@@ -2,6 +2,8 @@ workflows:
   flutter-ci-cd:
     name: Flutter CI/CD (with your build steps)
     max_build_duration: 60
+    instance_type: mac_mini_m1  # Add this for better performance
+    
     triggering:
       events:
         - push
@@ -9,9 +11,12 @@ workflows:
         - pattern: main
           include: true
           source: true
+    
     environment:
       flutter: stable
       xcode: latest
+      cocoapods: default
+    
     scripts:
       # Step 1: Clean and get dependencies
       - name: Flutter clean & pub get
@@ -19,27 +24,28 @@ workflows:
           flutter clean
           flutter pub get
 
-      # Step 2: iOS Build
+      # Step 2: iOS Build (Fixed version)
       - name: Build iOS (Runner.app → IPA)
         script: |
           echo "Running Pre build commands for iOS"
           cd ios
           pod install
           cd ..
-          echo "Building iOS in profile mode..."
-          flutter build ios --profile lib/main.dart
+          echo "Building iOS in release mode..."
+          flutter build ios --release --no-codesign -t lib/main.dart
           mkdir -p Payload
-          mv ./build/ios/iphoneos/Runner.app Payload
-          zip -r -y Payload.zip Payload/Runner.app
-          mv Payload.zip Payload.ipa
-          rm -Rf Payload
+          cp -R ./build/ios/iphoneos/Runner.app Payload/
+          cd Payload
+          zip -r ../Payload.ipa .
+          cd ..
+          rm -rf Payload
 
       # Step 3: Android Build
       - name: Build Android (Release APK)
         script: |
           echo "Building Android..."
           flutter build apk --release -t lib/main.dart
-          mv ./build/app/outputs/flutter-apk/app-release.apk miracle_meditation.apk
+          cp ./build/app/outputs/flutter-apk/app-release.apk miracle_meditation.apk
 
       # Step 4: Dummy Deployment
       - name: Dummy Deployment
@@ -53,3 +59,11 @@ workflows:
     artifacts:
       - Payload.ipa
       - miracle_meditation.apk
+    
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
+        notify:
+          success: true
+          failure: true
