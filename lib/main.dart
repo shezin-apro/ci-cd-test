@@ -57,19 +57,19 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: GestureDetector(
-        // onTapDown: (_) {
-        //   _arrowActive?.value = true; // start arrow animation
-        //   _textActive?.value = true; // start text animation
-        // },
-        // onTapUp: (_) {
-        //   _arrowActive?.value = false; // stop arrow animation
-        //   _textActive?.value = false; // stop text animation
-        // },
-        // onTapCancel: () {
-        //   // Ensure we stop if the tap is cancelled
-        //   _arrowActive?.value = false;
-        //   _textActive?.value = false;
-        // },
+        onTapDown: (_) {
+          _arrowActive?.value = true; // start arrow animation
+          _textActive?.value = true; // start text animation
+        },
+        onTapUp: (_) {
+          _arrowActive?.value = false; // stop arrow animation
+          _textActive?.value = false; // stop text animation
+        },
+        onTapCancel: () {
+          // Ensure we stop if the tap is cancelled
+          _arrowActive?.value = false;
+          _textActive?.value = false;
+        },
         onPanStart: (_) => _dragActive?.value = true, // start dragging
         onPanEnd: (_) => _dragActive?.value = false,
         child: RiveAnimation.asset(
