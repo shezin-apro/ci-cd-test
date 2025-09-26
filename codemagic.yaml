@@ -18,7 +18,6 @@ workflows:
         script: |
           flutter clean
           flutter pub get
-          flutter gen-l10n
 
       # Step 2: iOS Build
       - name: Build iOS (Runner.app → IPA)
