@@ -30,7 +30,6 @@ class _MyHomePageState extends State<MyHomePage> {
   SMIBool? _dragActive;
   SMIBool? _arrowActive;
   SMIBool? _textActive;
-  SMIBool? _strokeActive;
 
   void _riveInit(Artboard artboard) async {
     final controller = StateMachineController.fromArtboard(
@@ -44,7 +43,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _dragActive = controller?.findInput('Drag Active') as SMIBool;
     _arrowActive = controller?.findInput('Arrow Active') as SMIBool;
     _textActive = controller?.findInput('Text Active') as SMIBool;
-    _strokeActive = controller?.findInput('Stroke Active') as SMIBool;
     print(_controller!.inputs.map((i) => i.name).toList());
     print(_controller!.inputs.map((i) => i.type).toList());
   }
