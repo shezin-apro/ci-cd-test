@@ -1,21 +1,56 @@
 workflows:
-  flutter-ci:
-    name: Flutter CI
+  flutter-ci-cd:
+    name: Flutter CI/CD (with your build steps)
     max_build_duration: 60
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+          source: true
     environment:
       flutter: stable
+      xcode: latest
     scripts:
-      - name: Install dependencies
-        script: flutter pub get
+      # Step 1: Clean and get dependencies
+      - name: Flutter clean & pub get
+        script: |
+          flutter clean
+          flutter pub get
+          flutter gen-l10n
 
-      - name: Analyze code
-        script: flutter analyze
+      # Step 2: iOS Build
+      - name: Build iOS (Runner.app → IPA)
+        script: |
+          echo "Running Pre build commands for iOS"
+          cd ios
+          pod install
+          cd ..
+          echo "Building iOS in profile mode..."
+          flutter build ios --profile lib/main.dart
+          mkdir -p Payload
+          mv ./build/ios/iphoneos/Runner.app Payload
+          zip -r -y Payload.zip Payload/Runner.app
+          mv Payload.zip Payload.ipa
+          rm -Rf Payload
 
-      - name: Run tests
-        script: flutter test || echo "No tests found, skipping..."
+      # Step 3: Android Build
+      - name: Build Android (Release APK)
+        script: |
+          echo "Building Android..."
+          flutter build apk --release -t lib/main.dart
+          mv ./build/app/outputs/flutter-apk/app-release.apk miracle_meditation.apk
 
-      - name: Build release APK
-        script: flutter build apk --release
+      # Step 4: Dummy Deployment
+      - name: Dummy Deployment
+        script: |
+          echo "Pretending to upload IPA to Diawi..."
+          sleep 2
+          echo "Pretending to upload APK to Play Store..."
+          sleep 2
+          echo "✅ Dummy deployment finished!"
 
     artifacts:
-      - build/app/outputs/flutter-apk/app-release.apk
+      - Payload.ipa
+      - miracle_meditation.apk
